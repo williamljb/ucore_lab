@@ -14,3 +14,7 @@ tags
 .codelite
 *.project
 *.workspace
+a.out
+*.log
+*.exe
+chytesting
