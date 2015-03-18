@@ -49,7 +49,7 @@ idt_init(void) {
       */
 	int i;
 	for (i = 0; i < 256; ++i)
-		if (i == T_SYSCALL) {
+		if (i==T_SYSCALL||i==T_SWITCH_TOU||i==T_SWITCH_TOK) {
 			SETGATE(idt[i],1,0x8,__vectors[i],3);
 		}
 		else
@@ -152,6 +152,7 @@ print_regs(struct pushregs *regs) {
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
+	uint16_t reg1, reg2, reg3, reg4, eip;
 
     switch (tf->tf_trapno) {
     case IRQ_OFFSET + IRQ_TIMER:
@@ -175,12 +176,19 @@ trap_dispatch(struct trapframe *tf) {
         c = cons_getc();
         cprintf("kbd [%03d] %c\n", c, c);
         break;
-    //LAB1 CHALLENGE 1 : YOUR CODE you should modify below codes.
+    //LAB1 CHALLENGE 1 : 2012011375 you should modify below codes.
     case T_SWITCH_TOU:
+		asm volatile ("push %0" : : "r"(tf->tf_eip));
+		asm volatile ("push %0" : : "r"(tf->tf_cs|3));
+		asm volatile ("push %0" : : "r"(tf->tf_cs|3));
+		asm volatile ("retf");
+		break;
     case T_SWITCH_TOK:
-        panic("T_SWITCH_** ??\n");
+		//asm volatile("subl $0x3, %%cs");
         break;
     case IRQ_OFFSET + IRQ_IDE1:
+		break;
+		
     case IRQ_OFFSET + IRQ_IDE2:
         /* do nothing */
         break;
