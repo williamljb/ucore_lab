@@ -49,16 +49,16 @@ idt_init(void) {
       */
 	int i;
 	for (i = 0; i < 256; ++i)
-		if (i==T_SYSCALL||i==T_SWITCH_TOU||i==T_SWITCH_TOK) {
-			SETGATE(idt[i],1,0x8,__vectors[i],3);
+		if (i==T_SYSCALL||i==T_SWITCH_TOK) {
+			SETGATE(idt[i],1,GD_KTEXT,__vectors[i],DPL_USER);
 		}
 		else
 			if (i >= IRQ_OFFSET && i < IRQ_OFFSET + 16) {
-				SETGATE(idt[i],0,0x8,__vectors[i],0);
+				SETGATE(idt[i],0,GD_KTEXT,__vectors[i],DPL_KERNEL);
 			}
 			else {
-				SETGATE(idt[i],1,0x8,__vectors[i],0);
-			}
+				SETGATE(idt[i],1,GD_KTEXT,__vectors[i],DPL_KERNEL);
+	  }
 	lidt(&idt_pd);
 }
 
@@ -148,11 +148,12 @@ print_regs(struct pushregs *regs) {
     cprintf("  eax  0x%08x\n", regs->reg_eax);
 }
 
+struct trapframe *u2k, k2u;
+
 /* trap_dispatch - dispatch based on what type of trap occurred */
 static void
 trap_dispatch(struct trapframe *tf) {
     char c;
-	uint16_t reg1, reg2, reg3, reg4, eip;
 
     switch (tf->tf_trapno) {
     case IRQ_OFFSET + IRQ_TIMER:
@@ -178,14 +179,27 @@ trap_dispatch(struct trapframe *tf) {
         break;
     //LAB1 CHALLENGE 1 : 2012011375 you should modify below codes.
     case T_SWITCH_TOU:
-		asm volatile ("push %0" : : "r"(tf->tf_eip));
-		asm volatile ("push %0" : : "r"(tf->tf_cs|3));
-		asm volatile ("push %0" : : "r"(tf->tf_cs|3));
-		asm volatile ("retf");
+		if (tf->tf_cs != USER_CS)
+		{
+			k2u = *tf;
+			k2u.tf_cs = USER_CS;
+			k2u.tf_ds = k2u.tf_es = k2u.tf_ss = USER_DS;
+			k2u.tf_esp = (uint32_t)tf + sizeof(struct trapframe) - 8;
+			k2u.tf_eflags |= FL_IOPL_MASK;
+			*((uint32_t *)tf-1) = (uint32_t)&k2u;
+		}
 		break;
     case T_SWITCH_TOK:
-		//asm volatile("subl $0x3, %%cs");
-        break;
+		if (tf->tf_cs != KERNEL_CS)
+		{
+			tf->tf_cs = KERNEL_CS;
+			tf->tf_ds = tf->tf_es = KERNEL_DS;
+			tf->tf_eflags &= ~FL_IOPL_MASK;
+			u2k = (struct trapframe *)(tf->tf_esp - sizeof(struct trapframe) + 8);
+			memmove(u2k, tf, sizeof(struct trapframe) - 8);
+			*((uint32_t *)tf-1) = (uint32_t)u2k;
+		}
+			break;
     case IRQ_OFFSET + IRQ_IDE1:
 		break;
 		
