@@ -199,7 +199,7 @@ trap_dispatch(struct trapframe *tf) {
 			memmove(u2k, tf, sizeof(struct trapframe) - 8);
 			*((uint32_t *)tf-1) = (uint32_t)u2k;
 		}
-			break;
+		break;
     case IRQ_OFFSET + IRQ_IDE1:
 		break;
 		
