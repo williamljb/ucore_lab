@@ -97,6 +97,7 @@ alloc_proc(void) {
      *       char name[PROC_NAME_LEN + 1];               // Process name
      */
         memset(proc, 0, sizeof(struct proc_struct));
+        cprinf("process generated with UNINIT!\n");
         proc->state = PROC_UNINIT;
         proc->pid = -1;
         proc->cr3 = boot_cr3;
@@ -409,6 +410,7 @@ proc_init(void) {
 
     int pid1= kernel_thread(init_main, "init main1: Hello world!!", 0);
     int pid2= kernel_thread(init_main, "init main2: Hello world!!", 0);
+    int pid3= kernel_thread(init_main, "init main3: Hello world!!", 0);
     if (pid1 <= 0 || pid2<=0) {
         panic("create kernel thread init_main1 or 2 failed.\n");
     }
