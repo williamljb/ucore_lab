@@ -317,15 +317,15 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
     //    5. insert proc_struct into hash_list && proc_list
     //hash_proc(proc);
     //list_add(&proc_list, &proc->list_link);
-    //bool intr_flag;
-    //local_intr_save(intr_flag);
+    bool intr_flag;
+    local_intr_save(intr_flag);
     {
         proc->pid = get_pid();
         hash_proc(proc);
         list_add(&proc_list, &(proc->list_link));
         nr_process ++;
     }
-    //local_intr_restore(intr_flag);
+    local_intr_restore(intr_flag);
     //    6. call wakup_proc to make the new child process RUNNABLE
     wakeup_proc(proc);
     //    7. set ret vaule using child proc's pid
