@@ -366,9 +366,17 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
     */
 #if 1
     /*LAB3 EXERCISE 1: 2012011375*/
-    ptep = get_pte(mm->pgdir, addr, 1);              //(1) try to find a pte, if pte's PT(Page Table) isn't existed, then create a PT.
+    //(1) try to find a pte, if pte's PT(Page Table) isn't existed, then create a PT.
+    if ((ptep = get_pte(mm->pgdir, addr, 1)) == NULL) {
+        cprintf("get_pte in do_pgfault failed\n");
+        goto failed;
+    }
     if (*ptep == 0) {
-        pgdir_alloc_page(mm->pgdir, addr, perm);                    //(2) if the phy addr isn't exist, then alloc a page & map the phy addr with logical addr
+        //(2) if the phy addr isn't exist, then alloc a page & map the phy addr with logical addr
+        if (pgdir_alloc_page(mm->pgdir, addr, perm) == NULL) {
+            cprintf("pgdir_alloc_page in do_pgfault failed\n");
+            goto failed;
+        }
 
     }
     else {
@@ -383,16 +391,29 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
     *    page_insert ： build the map of phy addr of an Page with the linear addr la
     *    swap_map_swappable ： set the page swappable
     */
+        struct Page *page=NULL;
+        cprintf("do pgfault: ptep %x, pte %x\n",ptep, *ptep);
+        if (*ptep & PTE_P) {
+            //if process write to this existed readonly page (PTE_P means existed), then should be here now.
+            //we can implement the delayed memory space copy for fork child process (AKA copy on write, COW).
+            //we didn't implement now, we will do it in future.
+            panic("error write a non-writable pte");
+            //page = pte2page(*ptep);
+        } else{
         if(swap_init_ok) {
-            struct Page *page=NULL;
-            swap_in(mm, addr, &page);                        //(1）According to the mm AND addr, try to load the content of right disk page
+                                    //(1）According to the mm AND addr, try to load the content of right disk page
                                     //    into the memory which page managed.
+            if ((ret = swap_in(mm, addr, &page)) != 0) {
+                cprintf("swap_in in do_pgfault failed\n");
+                goto failed;
+            }
             page_insert(mm->pgdir, page, addr, perm);                        //(2) According to the mm, addr AND page, setup the map of phy addr <---> logical addr
             swap_map_swappable(mm, addr, page, 1);                        //(3) make the page swappable.
         }
         else {
             cprintf("no swap_init_ok but ptep is %x, failed\n",*ptep);
             goto failed;
+        }
         }
    }
 #endif

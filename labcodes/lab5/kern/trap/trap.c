@@ -59,16 +59,17 @@ idt_init(void) {
     extern uintptr_t __vectors[];
     int i;
     for (i = 0; i < 256; ++i)
-        if (i==T_SYSCALL||i==T_SWITCH_TOK) {
+        if (i==T_SYSCALL) {
             SETGATE(idt[i],1,GD_KTEXT,__vectors[i],DPL_USER);
         }
         else
             if (i >= IRQ_OFFSET && i < IRQ_OFFSET + 16) {
-                SETGATE(idt[i],0,GD_KTEXT,__vectors[i],DPL_KERNEL);
+                SETGATE(idt[i],1,GD_KTEXT,__vectors[i],DPL_KERNEL);
             }
             else {
                 SETGATE(idt[i],1,GD_KTEXT,__vectors[i],DPL_KERNEL);
       }
+    lidt(&idt_pd);
 }
 
 static const char *
@@ -238,7 +239,7 @@ trap_dispatch(struct trapframe *tf) {
          */
         ++ticks;
         if (ticks == TICK_NUM) {
-            print_ticks();
+            //print_ticks();
             ticks = 0;
             current->need_resched = 1;
         }
