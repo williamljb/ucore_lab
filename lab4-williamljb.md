@@ -12,6 +12,8 @@
 其实他们都只需要用memset就可以完成初始化。
 另外，这里的kstack可以不设置为boot_kstack，我觉得原因为之后的分配工作中会再次设置kstack的值所以没有关系。
 
+问题回答：context为进程上下文，tf为上一个进程被打断是的trapframe。在本实验的作用是用于记录进程切换时的信息，以在switch的时候把被切断之前的现场恢复回来。
+
 ---
 
 ### 练习二 为新创建的内核线程分配资源
@@ -22,6 +24,8 @@
 和答案不一样的是，我在alloc_proc中直接把parent设置为current，我认为在当前版本也不会有什么不对的，不过也许之后会不兼容。
 然后就是不清楚hashlist用的是pid，所以在ret的时候才去分配pid，或者是忘记让nr_process加一了，导致出现unhandled page fault。
 最后是答案中的local_intr_save/restore，把这段删去也没有什么影响，但是这段应该是不能被中断打断的，所以这两句话也是必须的。
+
+问题回答：只要MAX_PID > MAX_PROCESS，则分配的时候会至少有一个pid没有被占用，分配到的id就是唯一的。
 
 ---
 
