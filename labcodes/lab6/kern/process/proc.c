@@ -135,10 +135,10 @@ alloc_proc(void) {
         proc->wait_state = 0;
         proc->cptr = proc->yptr = proc->optr = NULL;
         proc->rq = NULL;
-        list_init(proc->run_link);
-        time_slice = 0;
-        skew_heap_init(proc->lab6_run_pool);
-        lab6_stride = lab6_priority = 0;
+        list_init(&proc->run_link);
+        proc->time_slice = 0;
+        skew_heap_init(&proc->lab6_run_pool);
+        proc->lab6_stride = proc->lab6_priority = 0;
     }
     return proc;
 }
@@ -832,7 +832,7 @@ user_main(void *arg) {
 #ifdef TEST
     KERNEL_EXECVE2(TEST, TESTSTART, TESTSIZE);
 #else
-    KERNEL_EXECVE(exit);
+    KERNEL_EXECVE(priority);
 #endif
     panic("user_main execve failed.\n");
 }
@@ -840,6 +840,7 @@ user_main(void *arg) {
 // init_main - the second kernel thread used to create user_main kernel threads
 static int
 init_main(void *arg) {
+	//cprintf("init main begin!!!\n");
     size_t nr_free_pages_store = nr_free_pages();
     size_t kernel_allocated_store = kallocated();
 
