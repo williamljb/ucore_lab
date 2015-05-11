@@ -43,18 +43,37 @@ class Bankers(object):
     def ExecuteProcess(self,index):
 
         #check if less avaliable than Request
-        # YOUR CODE, YOUR ID
+        # YOUR CODE, 2012011375
+        self.need = self.CalcNeed()
+        for i in range(0, len(self.RESOURCE)):
+            if self.avaliable[i] < self.need[index][i]:
+                return False
         #check END here
 
         #allocating what they need.
-        # YOUR CODE, YOUR ID
+        # YOUR CODE, 2012011375
+        for i in range(0,len(self.RESOURCE)):
+            self.finished[index] = True
+            self.allocated[index][i] = self.max[index][i]
+        self.avaliable = self.CalcAvaliable()
+        self.need = self.CalcNeed()
+        return True
         #allocating END here
         pass
 
     def TempSafeCheckAfterRelease(self):
         #check if at least one request can be done after previous process done. not check whole sequances.
         #if every element of Requests can't accepted after previous process done, this mean it is not safe state
-        # YOUR CODE, YOU ID
+        # YOUR CODE, 2012011375
+        self.need = self.CalcNeed()
+        for index in range(len(a)):
+            flag = True
+            for i in range(0, len(self.RESOURCE)):
+                if self.avaliable[i] < self.need[index][i]:
+                    flag = False
+            if flag:
+                return True
+        return False
         #check END here
         pass
 
