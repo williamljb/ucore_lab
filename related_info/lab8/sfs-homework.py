@@ -287,10 +287,10 @@ class fs:
         # find info about parent
         pinum = self.nameToInum[parent]
         # is there room in the parent directory?
-        if self.inodes[pinum].getAddr().getFreeEntries() == 0:
+        if self.data[pinum].getFreeEntries() == 0:
             return -1
         # have to make sure file name is unique
-        if self.inodes[pinum].getAddr().dirEntryExists(newfile):
+        if self.data[pinum].dirEntryExists(newfile):
             return -1
         # find free inode
         inum = self.inodeAlloc()
@@ -310,7 +310,7 @@ class fs:
         # inc parent ref count
         self.inodes[pinum].incRefCnt()
         # and add to directory of parent
-        self.inodes[pinum].getAddr().addDirEntry(newfile, inum)
+        self.data[pinum].addDirEntry(newfile, inum)
     # DONE
         return inum
 
