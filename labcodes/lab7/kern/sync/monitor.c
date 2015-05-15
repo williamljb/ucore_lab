@@ -45,7 +45,6 @@ cond_signal (condvar_t *cvp) {
 	   down(&mon->next);
 	   --mon->next_count;
    }
-   up(&mon->mutex);
    cprintf("cond_signal end: cvp %x, cvp->count %d, cvp->owner->next_count %d\n", cvp, cvp->count, cvp->owner->next_count);
 }
 
