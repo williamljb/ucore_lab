@@ -24,7 +24,7 @@ spin_delay(void)
 
 int
 main(void) {
-     int i,time;
+     int i,time,start=gettime_msec();
      cprintf("priority process will sleep %d ticks\n",SLEEP_TIME);
      sleep(SLEEP_TIME);
      memset(pids, 0, sizeof(pids));
@@ -39,7 +39,7 @@ main(void) {
                     spin_delay();
                     ++ acc[i];
                     if(acc[i]%4000==0) {
-                        if((time=gettime_msec())>SLEEP_TIME+MAX_TIME) {
+                        if((time=gettime_msec())>SLEEP_TIME+MAX_TIME+start) {
                             cprintf("child pid %d, acc %d, time %d\n",getpid(),acc[i],time);
                             exit(acc[i]);
                         }

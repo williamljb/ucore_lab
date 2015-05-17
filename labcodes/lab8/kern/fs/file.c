@@ -211,6 +211,7 @@ file_close(int fd) {
 // read file
 int
 file_read(int fd, void *base, size_t len, size_t *copied_store) {
+    //cprintf("here???%d\n", len);
     int ret;
     struct file *file;
     *copied_store = 0;
@@ -231,6 +232,7 @@ file_read(int fd, void *base, size_t len, size_t *copied_store) {
     }
     *copied_store = copied;
     fd_array_release(file);
+    //cprintf("ret=%d\n", ret);
     return ret;
 }
 

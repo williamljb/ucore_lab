@@ -177,6 +177,7 @@ int philosopher_using_condvar(void * arg) { /* arg is the No. of philosopher 0~N
 void check_sync(void){
 
     int i;
+    //return;
 
     //check semaphore
     sem_init(&mutex, 1);
