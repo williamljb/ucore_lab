@@ -47,7 +47,7 @@ vfs_open(char *path, uint32_t open_flags, struct inode **node_store) {
         return -E_EXISTS;
     }
     assert(node != NULL);
-    
+
     if ((ret = vop_open(node, open_flags)) != 0) {
         vop_ref_dec(node);
         return ret;

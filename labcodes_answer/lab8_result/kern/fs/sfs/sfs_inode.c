@@ -439,6 +439,7 @@ sfs_dirent_read_nolock(struct sfs_fs *sfs, struct sfs_inode *sin, int slot, stru
  */
 static int
 sfs_dirent_search_nolock(struct sfs_fs *sfs, struct sfs_inode *sin, const char *name, uint32_t *ino_store, int *slot, int *empty_slot) {
+    cprintf("sfs_dirent_search_nolock!!!\n");
     assert(strlen(name) <= SFS_MAX_FNAME_LEN);
     struct sfs_disk_entry *entry;
     if ((entry = kmalloc(sizeof(struct sfs_disk_entry))) == NULL) {
@@ -499,6 +500,7 @@ static int
 sfs_lookup_once(struct sfs_fs *sfs, struct sfs_inode *sin, const char *name, struct inode **node_store, int *slot) {
     int ret;
     uint32_t ino;
+	cprintf("sfs_lookup_once!!!\n");
     lock_sin(sin);
     {   // find the NO. of disk block and logical index of file entry
         ret = sfs_dirent_search_nolock(sfs, sin, name, &ino, slot, NULL);
@@ -974,6 +976,7 @@ out_unlock:
 static int
 sfs_lookup(struct inode *node, char *path, struct inode **node_store) {
     struct sfs_fs *sfs = fsop_info(vop_fs(node), sfs);
+	cprintf("sfs_lookup!!!\n");
     assert(*path != '\0' && *path != '/');
     vop_ref_inc(node);
     struct sfs_inode *sin = vop_info(node, sfs_inode);

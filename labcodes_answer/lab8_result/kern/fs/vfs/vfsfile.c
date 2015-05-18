@@ -10,6 +10,7 @@
 // open file in vfs, get/create inode for file with filename path.
 int
 vfs_open(char *path, uint32_t open_flags, struct inode **node_store) {
+	cprintf("vfs_open!!!\n");
     bool can_write = 0;
     switch (open_flags & O_ACCMODE) {
     case O_RDONLY:
@@ -48,6 +49,7 @@ vfs_open(char *path, uint32_t open_flags, struct inode **node_store) {
     }
     assert(node != NULL);
     
+	cprintf("vop_open!!!\n");
     if ((ret = vop_open(node, open_flags)) != 0) {
         vop_ref_dec(node);
         return ret;
